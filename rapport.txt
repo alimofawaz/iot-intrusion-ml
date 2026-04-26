@@ -1,0 +1,46 @@
+ali fawaz - ali zahereldine - zakaria gharib .
+
+This project uses an IoT intrusion detection dataset containing network traffic records labeled as benign or malicious. Each record is described by approximately 40 numerical features related to packet behavior.
+The dataset consists of multiple CSV files with a consistent structure, and due to its large size, a representative subset was selected.
+Data inspection showed no missing values but revealed a significant class imbalance, where some attack types such as DDoS appear much more frequently than others. 
+During preprocessing, duplicate records were removed to ensure data quality.
+During training, an issue with infinite and invalid values was detected. These values were converted to NaN and removed to ensure compatibility with scaling and model training.
+The dataset was split into training (70%), validation (15%), and test (15%) sets using stratified sampling. Feature scaling was applied after splitting to prevent data leakage.
+A Logistic Regression model was used as a baseline. Without class weighting, the model achieved around 75% accuracy but failed to detect several minority attack classes, showing strong bias toward dominant classes.
+To address this issue, class weighting ("balanced") was applied. This improved detection of minority attacks but reduced overall accuracy to around 72% and lowered performance on benign traffic.
+Overall, the results highlight the impact of class imbalance and demonstrate the trade-off between accuracy and fairness in intrusion detection systems.
+The workflow started with inspect_dataset.py for initial dataset inspection, followed by count_rows.py to measure the dataset size. Then, prepare_data.py was used to clean, sample, merge, and save the final dataset. After preprocessing, check_final_data.py validated the cleaned dataset.
+ Finally, train_baseline.py performed data splitting, feature scaling, Logistic Regression training, and model evaluation.
+
+
+
+
+
+After the baseline model developed in the previous phase, more advanced machine learning models were explored to improve classification performance.
+The first model implemented in this phase was a Random Forest classifier. This model provided good performance on major attack classes due to its ability to handle complex feature interactions. 
+However, it showed limitations when dealing with minority classes, as the dataset is highly imbalanced.
+To address this limitation, an XGBoost classifier was introduced. This model achieved better generalization and improved classification performance, especially in distinguishing between similar attack types.
+ Despite this improvement, challenges remained for rare attack classes.
+To further enhance performance, a hierarchical classification approach was adopted. Instead of directly classifying all attack types, the problem was divided into three stages:
+Stage 1: Binary classification (Benign vs Attack)
+Stage 2: Attack family classification
+Stage 3: Subclass classification within each family
+This approach reduced the complexity of the problem and allowed each model to specialize in a smaller subset of classes.
+The final hierarchical model achieved the following results:
+Test set:
+Accuracy: 0.783
+Macro F1-score: 0.724
+Real-world dataset (70,000 samples):
+Subclass level:
+Accuracy: 0.784
+Macro F1-score: 0.58
+Family level:
+Accuracy: 0.856
+Macro F1-score: 0.67
+The results indicate that the model performs very well on frequent attack classes such as DDOS and MIRAI, while performance decreases for rare classes due to the limited number of samples.
+Overall, the hierarchical model demonstrates strong performance and good generalization on unseen real-world data, making it suitable for practical intrusion detection scenarios.
+
+After training the models, the system was deployed using FastAPI as a REST API. The API accepts network traffic features in JSON format and returns predictions in real time following the hierarchical pipeline (benign vs attack → family → specific attack).
+During inference, only minimal preprocessing is applied to ensure consistency with the training phase, including feature alignment and handling invalid values. Data cleaning and preparation are performed offline.
+The system was tested using the FastAPI interface (/docs), allowing real-time prediction testing. To ensure portability, the system was containerized using Docker, enabling it to run on any machine with a simple command.
+Overall, this represents a complete intrusion detection system, from model training to real-time deployment
