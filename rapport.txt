@@ -1,4 +1,4 @@
-ali fawaz - ali zahereldine - zakaria gharib .
+ali fawaz 222884 - ali zahereldine232979 - zakaria gharib 222208.
 
 This project uses an IoT intrusion detection dataset containing network traffic records labeled as benign or malicious. Each record is described by approximately 40 numerical features related to packet behavior.
 The dataset consists of multiple CSV files with a consistent structure, and due to its large size, a representative subset was selected.
